@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Para a Jessica</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0C0B0E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..600;1,9..144,300..500&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+
+<style>
+/* ========================================================================
+   PALETA — tirada das próprias fotos
+   ======================================================================== */
+:root{
+  --noite:  #0C0B0E;   /* preto do fundo */
+  --papel:  #F4EFE7;   /* branco quente do texto */
+  --azul:   #6E9BC4;   /* do vestido azul e branco */
+  --lilas:  #B49BD8;   /* do vestido de fevereiro */
+  --eco:    #C9A167;   /* dourado da ecografia — só aparece na viragem */
+
+  --serif: "Fraunces", Georgia, serif;
+  --mono:  "DM Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+*{ box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent; }
+
+html,body{ height:100%; overflow:hidden; background:var(--noite); }
+
+body{
+  font-family:var(--serif);
+  color:var(--papel);
+  display:grid;
+  place-items:center;
+  overscroll-behavior:none;
+}
+
+/* O palco: 9:16 fixo no computador, ecrã inteiro no telemóvel */
+#palco{
+  position:relative;
+  width:100%; height:100dvh;
+  max-width:min(100vw, calc(100dvh * 9 / 16));
+  overflow:hidden;
+  background:#000;
+  isolation:isolate;
+}
+
+/* ========================================================================
+   SLIDES
+   ======================================================================== */
+.slide{
+  position:absolute; inset:0;
+  opacity:0;
+  transition:opacity 900ms ease;
+  pointer-events:none;
+  z-index:1;
+}
+.slide.ativo{ opacity:1; z-index:2; }
+
+.slide .media{
+  position:absolute; inset:0;
+  width:100%; height:100%;
+  object-fit:cover;
+  object-position:var(--foco, 50% 50%);
+  will-change:transform;
+}
+.slide[data-ajuste="contain"] .media{ object-fit:contain; }
+
+/* Zoom lento. Só corre no slide activo, e reinicia a cada passagem. */
+.slide.ativo .media{ animation:kb-aproxima var(--dur,6s) linear both; }
+.slide.ativo[data-pan="afasta"] .media{ animation-name:kb-afasta; }
+.slide[data-ajuste="contain"].ativo .media{ animation-name:kb-parado; }
+
+@keyframes kb-aproxima{ from{transform:scale(1.03) translate3d(0,0,0)}      to{transform:scale(1.15) translate3d(-1.6%,-1.2%,0)} }
+@keyframes kb-afasta  { from{transform:scale(1.15) translate3d(1.6%,1.2%,0)} to{transform:scale(1.03) translate3d(0,0,0)} }
+@keyframes kb-parado  { from{transform:scale(.94)}                            to{transform:scale(1)} }
+
+/* Véu escuro em baixo, para o texto se ler sempre */
+.slide .veu{
+  position:absolute; inset:0;
+  background:linear-gradient(to top,
+    rgba(12,11,14,.88) 0%,
+    rgba(12,11,14,.62) 22%,
+    rgba(12,11,14,.10) 48%,
+    rgba(12,11,14,.28) 100%);
+}
+
+/* ========================================================================
+   TEXTO — sempre no mesmo sítio, sempre a mesma entrada
+   ======================================================================== */
+.legenda{
+  position:absolute;
+  left:0; right:0;
+  bottom:max(9vh, env(safe-area-inset-bottom, 0px));
+  padding:0 8.5%;
+  display:flex; flex-direction:column; gap:.42em;
+}
+.legenda p{
+  font-optical-sizing:auto;
+  font-variation-settings:"SOFT" 40, "WONK" 1;
+  font-weight:340;
+  font-size:clamp(1.42rem, 5.4vw, 2.05rem);
+  line-height:1.28;
+  letter-spacing:-0.015em;
+  text-wrap:balance;
+  text-shadow:0 2px 26px rgba(0,0,0,.6);
+  opacity:0;
+  transform:translateY(14px);
+}
+.slide.ativo .legenda p{ animation:sobe 1150ms cubic-bezier(.16,1,.3,1) both; }
+.slide.ativo .legenda p:nth-child(2){ animation-delay:620ms; }
+.slide.ativo .legenda p:nth-child(3){ animation-delay:1180ms; }
+
+@keyframes sobe{ to{ opacity:1; transform:none; } }
+
+.legenda em{ font-style:italic; color:var(--azul); font-weight:380; }
+
+/* ========================================================================
+   INTERLÚDIO — a viragem da história.
+   O ecrã fica preto e a máquina de ecografia "escreve" a data.
+   ======================================================================== */
+.slide.interludio{ background:var(--noite); display:grid; place-items:center; }
+.leitura{
+  font-family:var(--mono);
+  font-weight:300;
+  font-size:clamp(.72rem, 3.1vw, .92rem);
+  letter-spacing:.16em;
+  color:var(--eco);
+  text-align:left;
+  line-height:2.5;
+}
+.leitura span{ display:block; opacity:0; }
+.slide.interludio.ativo .leitura span{ animation:pisca 700ms steps(1) both; }
+.slide.interludio.ativo .leitura span:nth-child(1){ animation-delay:500ms; }
+.slide.interludio.ativo .leitura span:nth-child(2){ animation-delay:1150ms; }
+.slide.interludio.ativo .leitura span:nth-child(3){ animation-delay:1800ms; }
+@keyframes pisca{ to{ opacity:1; } }
+
+/* ========================================================================
+   BARRA DE PROGRESSO
+   ======================================================================== */
+#progresso{
+  position:absolute; top:0; left:0; right:0;
+  z-index:20;
+  display:flex; gap:3px;
+  padding:calc(10px + env(safe-area-inset-top, 0px)) 10px 0;
+  opacity:.85;
+}
+#progresso i{
+  flex:1; height:2px;
+  background:rgba(244,239,231,.24);
+  border-radius:2px; overflow:hidden;
+}
+#progresso i b{
+  display:block; height:100%; width:0%;
+  background:var(--papel);
+  border-radius:2px;
+}
+
+/* ========================================================================
+   ECRÃ DE ABERTURA
+   ======================================================================== */
+#capa{
+  position:absolute; inset:0; z-index:40;
+  background:var(--noite);
+  display:grid; place-content:center; justify-items:center;
+  gap:2.4rem; padding:2rem;
+  text-align:center;
+  transition:opacity 700ms ease;
+}
+#capa.sai{ opacity:0; pointer-events:none; }
+
+#capa .data{
+  font-family:var(--mono); font-size:.74rem;
+  letter-spacing:.32em; text-transform:uppercase;
+  color:var(--lilas); opacity:.9;
+}
+#capa h1{
+  font-weight:300; font-size:clamp(2.6rem, 13vw, 4.6rem);
+  font-variation-settings:"SOFT" 60, "WONK" 1;
+  line-height:.95; letter-spacing:-0.035em;
+}
+#capa h1 em{ display:block; font-style:italic; color:var(--azul); }
+
+.botao{
+  font-family:var(--mono); font-size:.78rem;
+  letter-spacing:.2em; text-transform:uppercase;
+  color:var(--papel); background:none;
+  border:1px solid rgba(244,239,231,.35);
+  border-radius:999px; padding:.95em 2.1em;
+  cursor:pointer;
+  transition:background 300ms ease, border-color 300ms ease;
+}
+.botao:hover, .botao:focus-visible{ background:rgba(244,239,231,.1); border-color:var(--papel); }
+.botao:focus-visible{ outline:2px solid var(--azul); outline-offset:3px; }
+
+#capa .nota{ font-family:var(--mono); font-size:.66rem; letter-spacing:.1em; opacity:.42; }
+
+/* ========================================================================
+   FIM
+   ======================================================================== */
+#fim{
+  position:absolute; inset:0; z-index:30;
+  background:var(--noite);
+  display:grid; place-content:center; justify-items:center;
+  gap:1.6rem; padding:2rem; text-align:center;
+  opacity:0; pointer-events:none;
+  transition:opacity 1400ms ease;
+}
+#fim.mostra{ opacity:1; pointer-events:auto; }
+#fim h2{
+  font-weight:300; font-size:clamp(2rem, 9vw, 3.1rem);
+  font-variation-settings:"SOFT" 60, "WONK" 1;
+  line-height:1.05; letter-spacing:-0.03em;
+}
+#fim h2 em{ display:block; font-style:italic; color:var(--azul); margin-top:.12em; }
+#fim .amo{ font-size:1.2rem; font-weight:300; opacity:.85; }
+#fim .data{ font-family:var(--mono); font-size:.68rem; letter-spacing:.28em; opacity:.4; }
+#fim .botao{ margin-top:1rem; }
+
+/* Zonas de toque: esquerda volta atrás, direita avança */
+.toque{ position:absolute; top:0; bottom:0; width:32%; z-index:15; cursor:pointer; }
+.toque.esq{ left:0; }
+.toque.dir{ right:0; width:68%; }
+
+/* Acessibilidade */
+@media (prefers-reduced-motion: reduce){
+  .slide.ativo .media{ animation:none !important; transform:none !important; }
+  .slide.ativo .legenda p{ animation-duration:1ms; }
+  .slide{ transition-duration:200ms; }
+}
+</style>
+</head>
+
+<body>
+<main id="palco">
+
+  <div id="progresso" aria-hidden="true"></div>
+
+  <div class="toque esq" id="tocaAtras" aria-label="Anterior"></div>
+  <div class="toque dir" id="tocaFrente" aria-label="Seguinte"></div>
+
+  <!-- ABERTURA -->
+  <section id="capa">
+    <p class="data">28 de agosto de 2026</p>
+    <h1>Para a<em>Jessica</em></h1>
+    <button class="botao" id="comecar">Começar</button>
+    <p class="nota">com som · 1 minuto</p>
+  </section>
+
+  <!-- FIM -->
+  <section id="fim">
+    <h2>Feliz aniversário,<em>Jessica</em></h2>
+    <p class="amo">Amo-te.</p>
+    <p class="data">28.08.2026</p>
+    <button class="botao" id="repetir">Ver outra vez</button>
+  </section>
+
+</main>
+
+<audio id="musica" src="musica/musica.mp3" loop preload="auto"></audio>
+
+<script>
+/* ==========================================================================
+   O GUIÃO.
+   Muda o texto, a ordem e os tempos aqui. Não precisas de mexer em mais nada.
+
+     ficheiro : caminho da foto ou do vídeo
+     segundos : quanto tempo fica no ecrã
+     linhas   : uma ou duas frases. Usa <em>assim</em> para destacar a azul.
+     foco     : que zona da foto fica visível (ex.: '50% 30%' puxa para cima)
+     pan      : 'aproxima' ou 'afasta' — alterna para não ficar repetitivo
+   ========================================================================== */
+const GUIAO = [
+  {
+    ficheiro:'fotos/01-cozinha.jpg', segundos:6.5, pan:'aproxima', foco:'50% 35%',
+    linhas:['Jessica, hoje é o teu dia.', 'Fiz-te uma coisa. Vê até ao fim.']
+  },
+  {
+    ficheiro:'fotos/02-fevereiro.jpg', segundos:5, pan:'afasta', foco:'45% 40%',
+    linhas:['Há um ano ainda estávamos a começar.']
+  },
+  {
+    ficheiro:'fotos/03-noite.jpg', segundos:5, pan:'aproxima', foco:'50% 40%',
+    linhas:['As saídas. As conversas até tarde.']
+  },
+  {
+    ficheiro:'fotos/04-escadaria.jpg', segundos:5.5, pan:'afasta', foco:'40% 45%',
+    linhas:['Eu à frente da câmara.', 'Tu atrás, <em>linda</em>, sem sequer tentares.']
+  },
+  {
+    ficheiro:'fotos/05-banco.jpg', segundos:5, pan:'aproxima', foco:'50% 50%',
+    linhas:['Deste dia só me lembro de ti.']
+  },
+
+  /* A viragem. Ecrã preto, três linhas como no monitor do hospital. */
+  {
+    interludio:true, segundos:4.5,
+    leitura:['HOSPITAL TERESA LISIEUX', '23.06.2026    10:13', 'GA = 22s 6d']
+  },
+
+  {
+    ficheiro:'fotos/06-ecografia.jpg', segundos:7, ajuste:'contain', foco:'50% 38%',
+    linhas:['E depois este ano trouxe isto.']
+  },
+  {
+    ficheiro:'fotos/07-barriga.jpg', segundos:6, pan:'aproxima', foco:'50% 45%',
+    linhas:['Passei a olhar para ti de outra maneira.']
+  },
+  {
+    ficheiro:'fotos/08-nos-dois.jpg', segundos:7, pan:'afasta', foco:'50% 45%',
+    linhas:['Já não somos dois.', 'Somos três. Só ainda não o conhecemos.']
+  },
+
+  /* O vídeo. Para o tirar, apaga este bloco todo (das chavetas à vírgula).
+     Para ouvir o som original do vídeo, muda som:false para som:true —
+     nesse caso convém baixares o VOLUME_MUSICA lá em baixo. */
+  {
+    ficheiro:'fotos/09-final.mp4', video:true, som:false, segundos:16.6,
+    linhas:['O último aniversário em que somos <em>só nós os dois</em>.']
+  }
+];
+
+const VOLUME_MUSICA = 0.55;   /* entre 0 e 1 */
+
+/* ==========================================================================
+   Daqui para baixo é a mecânica. Podes ignorar.
+   ========================================================================== */
+const palco     = document.getElementById('palco');
+const barra     = document.getElementById('progresso');
+const capa      = document.getElementById('capa');
+const fim       = document.getElementById('fim');
+const musica    = document.getElementById('musica');
+const menosMovimento = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+let indice = 0, inicio = 0, decorrido = 0, emPausa = false, aCorrer = false, raf = null;
+
+/* --- construir os slides a partir do guião --- */
+const slides = GUIAO.map((s, i) => {
+  const el = document.createElement('section');
+  el.className = 'slide' + (s.interludio ? ' interludio' : '');
+  el.dataset.pan = s.pan || 'aproxima';
+  if (s.ajuste) el.dataset.ajuste = s.ajuste;
+  el.style.setProperty('--dur', s.segundos + 's');
+  if (s.foco) el.style.setProperty('--foco', s.foco);
+
+  if (s.interludio) {
+    el.innerHTML = '<div class="leitura">' +
+      s.leitura.map(l => '<span>' + l + '</span>').join('') + '</div>';
+  } else {
+    if (s.video) {
+      const v = document.createElement('video');
+      v.className = 'media';
+      v.src = s.ficheiro;
+      v.muted = !s.som;
+      v.playsInline = true;
+      v.preload = 'auto';
+      v.setAttribute('webkit-playsinline', '');
+      el.appendChild(v);
+    } else {
+      const img = document.createElement('img');
+      img.className = 'media';
+      img.src = s.ficheiro;
+      img.alt = '';
+      img.loading = i < 3 ? 'eager' : 'lazy';
+      img.decoding = 'async';
+      el.appendChild(img);
+    }
+    el.insertAdjacentHTML('beforeend', '<div class="veu"></div>');
+    if (s.linhas && s.linhas.length) {
+      el.insertAdjacentHTML('beforeend',
+        '<div class="legenda">' + s.linhas.map(l => '<p>' + l + '</p>').join('') + '</div>');
+    }
+  }
+
+  palco.insertBefore(el, capa);
+  barra.insertAdjacentHTML('beforeend', '<i><b></b></i>');
+  return el;
+});
+
+const barrinhas = [...barra.querySelectorAll('b')];
+
+function mostrar(n){
+  if (n < 0) n = 0;
+  if (n >= GUIAO.length){ terminar(); return; }
+
+  const anterior = slides[indice];
+  if (anterior){
+    anterior.classList.remove('ativo');
+    const v = anterior.querySelector('video');
+    if (v){ v.pause(); v.currentTime = 0; }
+  }
+
+  indice = n;
+  barrinhas.forEach((b, i) => b.style.width = i < n ? '100%' : '0%');
+
+  const atual = slides[indice];
+  /* forçar o reinício das animações CSS deste slide */
+  void atual.offsetWidth;
+  atual.classList.add('ativo');
+
+  const v = atual.querySelector('video');
+  if (v){ v.currentTime = 0; v.play().catch(()=>{}); }
+
+  decorrido = 0;
+  inicio = performance.now();
+  aCorrer = true;
+  cancelAnimationFrame(raf);
+  raf = requestAnimationFrame(tique);
+}
+
+function tique(agora){
+  if (!aCorrer) return;
+  if (!emPausa){
+    const total = GUIAO[indice].segundos * 1000;
+    const passou = decorrido + (agora - inicio);
+    barrinhas[indice].style.width = Math.min(100, (passou / total) * 100) + '%';
+    if (passou >= total){ mostrar(indice + 1); return; }
+  } else {
+    inicio = agora - decorrido;
+  }
+  raf = requestAnimationFrame(tique);
+}
+
+function pausar(){
+  if (emPausa || !aCorrer) return;
+  emPausa = true;
+  decorrido += performance.now() - inicio;
+  const v = slides[indice]?.querySelector('video'); if (v) v.pause();
+  musica.pause();
+}
+function retomar(){
+  if (!emPausa) return;
+  emPausa = false;
+  inicio = performance.now();
+  const v = slides[indice]?.querySelector('video'); if (v) v.play().catch(()=>{});
+  musica.play().catch(()=>{});
+}
+
+function terminar(){
+  aCorrer = false;
+  cancelAnimationFrame(raf);
+  slides[indice]?.classList.remove('ativo');
+  fim.classList.add('mostra');
+  /* a música desvanece em 4 segundos */
+  const v0 = musica.volume;
+  const t0 = performance.now();
+  (function baixa(t){
+    const p = Math.min(1, (t - t0) / 4000);
+    musica.volume = v0 * (1 - p);
+    if (p < 1) requestAnimationFrame(baixa); else musica.pause();
+  })(t0);
+}
+
+function arrancar(){
+  capa.classList.add('sai');
+  fim.classList.remove('mostra');
+  musica.volume = 0;
+  musica.currentTime = 0;
+  musica.play().then(() => {           /* a música entra devagar */
+    const t0 = performance.now();
+    (function sobe(t){
+      const p = Math.min(1, (t - t0) / 3000);
+      musica.volume = VOLUME_MUSICA * p;
+      if (p < 1) requestAnimationFrame(sobe);
+    })(t0);
+  }).catch(() => {});                  /* sem ficheiro de música, segue em silêncio */
+  aCorrer = false;
+  cancelAnimationFrame(raf);
+  setTimeout(() => mostrar(0), 350);
+}
+
+/* --- controlos --- */
+document.getElementById('comecar').addEventListener('click', arrancar);
+document.getElementById('repetir').addEventListener('click', arrancar);
+document.getElementById('tocaFrente').addEventListener('click', () => aCorrer && mostrar(indice + 1));
+document.getElementById('tocaAtras').addEventListener('click', () => aCorrer && mostrar(indice - 1));
+
+/* manter premido para pausar */
+['pointerdown'].forEach(e => palco.addEventListener(e, ev => {
+  if (ev.target.classList.contains('toque')) ev.target._t = setTimeout(pausar, 320);
+}));
+['pointerup','pointercancel','pointerleave'].forEach(e => palco.addEventListener(e, ev => {
+  if (ev.target.classList.contains('toque')){ clearTimeout(ev.target._t); retomar(); }
+}));
+
+document.addEventListener('keydown', ev => {
+  if (ev.key === 'ArrowRight') { aCorrer && mostrar(indice + 1); }
+  if (ev.key === 'ArrowLeft')  { aCorrer && mostrar(indice - 1); }
+  if (ev.key === ' ' && aCorrer){ ev.preventDefault(); emPausa ? retomar() : pausar(); }
+  if (ev.key === 'Enter' && !aCorrer) arrancar();
+});
+
+document.addEventListener('visibilitychange', () => document.hidden ? pausar() : retomar());
+</script>
+</body>
+</html>
